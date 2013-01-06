@@ -1,0 +1,20 @@
+extend layout.jade
+block content
+	h1 Search for #{query}...
+	a.btn.btn-success(href='/') Go Home
+
+	table.table.table-condensed.table-stripped
+		thead
+			tr
+				each attr in fields
+					td= attr
+		tbody
+			each item in items
+				tr
+					each attr in fields
+						if attr == 'thumbnail'
+							td
+								img(src=item[attr])
+						else
+							td= item[attr]
+	a.btn.btn-success(href='/') Go Home

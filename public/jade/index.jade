@@ -1,0 +1,17 @@
+extend layout.jade
+block content
+	h1 Gdrive Crawler
+	
+	h3 Search
+	form(action='/search', method='get')
+		input(name='query', type='text')
+		br
+		input.btn.btn-success(type='submit', value='Search!~')
+	h3 Add user to index
+	form(action='/add', method='get')
+		label(for='username') Username:
+		input(type='text', name='username')
+		label(for='access_token') Access Token:
+		input(type='text', name='access_token')
+		br
+		input.btn.btn-success(type='submit', value='Index this dude!~')
