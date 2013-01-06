@@ -23,7 +23,7 @@ class RootHandler(tornado.web.RequestHandler):
 
 class SearchHandler(tornado.web.RequestHandler):
     def search(self, query):
-        request = requests.get(ELASTIC_SEARCH + '/_search',
+        request = requests.get(ELASTIC_SEARCH + '/all_documents/_search',
                                params={'q': 'title:' + query})
         response = request.json()
         result = []
@@ -33,6 +33,7 @@ class SearchHandler(tornado.web.RequestHandler):
 
             result.append({
                 'title': item['title'],
+                'account': item['_account'],
                 'thumbnail': item.get('thumbnailLink', 'http://bit.ly/ScQadK')
             })
 
@@ -43,7 +44,7 @@ class SearchHandler(tornado.web.RequestHandler):
         self.write(template_loader.load('search_results.jade')
             .generate(query=query,
                       items=self.search(query),
-                      fields=['title', 'thumbnail']))
+                      fields=['title', 'account', 'thumbnail']))
 
 
 class AddHandler(tornado.web.RequestHandler):

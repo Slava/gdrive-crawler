@@ -40,9 +40,21 @@ while True:
         response = request.json()
 
         for item in response['items']:
-            jsoned_data = json.dumps(item)
-            put_url = ELASTIC_SEARCH + '/' + urllib.quote(username) + \
-                        '/gdrive_item/' + urllib.quote(item['id'])
+            index_item = {}
+            important_fields = ['title', 'thumbnailLink', 'mimeType',
+                                'ownerNames', 'id', 'createdDate',
+                                'modifiedDate']
+
+            for field in important_fields:
+                if field in item:
+                    index_item[field] = item[field]
+
+            index_item['_account'] = username
+
+            jsoned_data = json.dumps(index_item)
+
+            put_url = ELASTIC_SEARCH + '/all_documents' + \
+                '/gdrive_item/' + urllib.quote(item['id'])
             index_request = requests.put(put_url, data=jsoned_data, timeout=10)
             print index_request
 
