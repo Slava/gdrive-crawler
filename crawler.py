@@ -5,7 +5,7 @@ import urllib
 import json
 import os
 
-ELASTIC_SEARCH = os.getenv('ELASTIC_SEARCH', 'http://localhost:9200/')
+ELASTIC_SEARCH = os.getenv('BONSAI_URL', 'http://localhost:9200/')
 
 parser = OptionParser()
 parser.add_option('-u', '--username', dest='username',
@@ -23,8 +23,6 @@ if not username:
 if not access_token:
     raise Exception('access_token can not be None')
 
-print 'indexing account>' + username + '<', '>' + access_token + '<', os.getenv('VIRTUAL_ENV', 'None')
-
 page_token = None
 
 while True:
@@ -37,12 +35,14 @@ while True:
         if page_token:
             params['pageToken'] = page_token
 
-        request = requests.get('https://www.googleapis.com/drive/v2/files', params=params, headers=headers, timeout=10)
+        request = requests.get('https://www.googleapis.com/drive/v2/files',
+                               params=params, headers=headers, timeout=10)
         response = request.json()
 
         for item in response['items']:
             jsoned_data = json.dumps(item)
-            put_url = ELASTIC_SEARCH + urllib.quote(username) + '/gdrive_item/' + urllib.quote(item['id'])
+            put_url = ELASTIC_SEARCH + urllib.quote(username) + \
+                        '/gdrive_item/' + urllib.quote(item['id'])
             index_request = requests.put(put_url, data=jsoned_data, timeout=10)
             print index_request
 
