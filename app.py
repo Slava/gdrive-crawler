@@ -70,5 +70,5 @@ app = tornado.web.Application([
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    app.listen(8888)
+    app.listen(os.getenv('PORT', 8888))
     tornado.ioloop.IOLoop.instance().start()
