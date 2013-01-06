@@ -13,7 +13,7 @@ from pyjade.ext.tornado import patch_tornado
 patch_tornado()
 template_loader = template.Loader('./public/jade')
 
-ELASTIC_SEARCH = os.getenv('BONSAI_URL', 'http://localhost:9200/')
+ELASTIC_SEARCH = os.getenv('BONSAI_URL', 'http://localhost:9200/') + '/'
 
 
 class RootHandler(tornado.web.RequestHandler):
