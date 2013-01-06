@@ -5,7 +5,7 @@ import urllib
 import json
 import os
 
-ELASTIC_SEARCH = 'http://' + os.getenv('BONSAI_URL', 'localhost:9200')
+ELASTIC_SEARCH = 'http://' + str(os.getenv('BONSAI_URL', 'localhost:9200'))
 
 parser = OptionParser()
 parser.add_option('-u', '--username', dest='username',
