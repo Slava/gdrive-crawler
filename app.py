@@ -23,6 +23,7 @@ class RootHandler(tornado.web.RequestHandler):
 
 class SearchHandler(tornado.web.RequestHandler):
     def search(self, query):
+        print ELASTIC_SEARCH
         request = requests.get(ELASTIC_SEARCH + '/all_documents/_search',
                                params={'q': 'title:' + query})
         response = request.json()
