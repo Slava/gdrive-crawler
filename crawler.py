@@ -5,7 +5,7 @@ import urllib
 import json
 import os
 
-ELASTIC_SEARCH = os.getenv('BONSAI_URL', 'http://localhost:9200') + '/'
+ELASTIC_SEARCH = 'http://' + os.getenv('BONSAI_URL', 'localhost:9200')
 
 parser = OptionParser()
 parser.add_option('-u', '--username', dest='username',
@@ -41,7 +41,7 @@ while True:
 
         for item in response['items']:
             jsoned_data = json.dumps(item)
-            put_url = ELASTIC_SEARCH + urllib.quote(username) + \
+            put_url = ELASTIC_SEARCH + '/' + urllib.quote(username) + \
                         '/gdrive_item/' + urllib.quote(item['id'])
             index_request = requests.put(put_url, data=jsoned_data, timeout=10)
             print index_request
