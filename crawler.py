@@ -69,7 +69,8 @@ while True:
             index_request = requests.put(put_url, data=jsoned_data, timeout=10,
                                          auth=(parsed_url.username,
                                                parsed_url.password))
-            print 'index', item['id'], index_request
+            print 'index', item['id'], index_request,\
+                  put_url, parsed_url.username, parsed_url.password
 
     except Exception as e:
         import traceback
