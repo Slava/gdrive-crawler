@@ -3,6 +3,7 @@ block content
 	h1 Search for #{query}...
 	a.btn.btn-success(href='/') Go Home
 
+	h3 Found in title:
 	table.table.table-condensed.table-stripped
 		thead
 			tr
@@ -12,9 +13,26 @@ block content
 			each item in items
 				tr
 					each attr in fields
-						if attr == 'thumbnail'
+						if attr == 'link'
 							td
-								img(src=item[attr])
+								a(href=item[attr]) open
+						else
+							td= item[attr]
+	hr
+
+	h3 Found in content:
+	table.table.table-condensed.table-stripped
+		thead
+			tr
+				each attr in fields
+					td= attr
+		tbody
+			each item in items_cont
+				tr
+					each attr in fields
+						if attr == 'link'
+							td
+								a(href=item[attr]) open
 						else
 							td= item[attr]
 	a.btn.btn-success(href='/') Go Home

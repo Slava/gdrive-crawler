@@ -9,11 +9,12 @@ import urllib
 
 from tornado import template
 from pyjade.ext.tornado import patch_tornado
+from urlparse import urlparse
 
 patch_tornado()
 template_loader = template.Loader('./public/jade')
 
-ELASTIC_SEARCH = 'http://' + str(os.getenv('BONSAI_URL', 'localhost:9200'))
+ELASTIC_SEARCH = str(os.getenv('BONSAI_URL', 'http://localhost:9200'))
 
 
 class RootHandler(tornado.web.RequestHandler):
@@ -22,11 +23,11 @@ class RootHandler(tornado.web.RequestHandler):
 
 
 class SearchHandler(tornado.web.RequestHandler):
-    def search(self, query):
-        print ELASTIC_SEARCH
-        request = requests.get(ELASTIC_SEARCH + '/all_documents/_search',
-                               params={'q': 'title:' + query})
-        response = request.json()
+    def _get_auth(self, url):
+        parsed_url = urlparse(url)
+        return (parsed_url.username, parsed_url.password)
+
+    def _beautify_response(self, response):
         result = []
 
         for hit in response['hits']['hits']:
@@ -34,18 +35,34 @@ class SearchHandler(tornado.web.RequestHandler):
 
             result.append({
                 'title': item['title'],
-                'account': item['_account'],
-                'thumbnail': item.get('thumbnailLink', 'http://bit.ly/ScQadK')
+                'id': item['id'],
+                'account': item['account'],
+                'link': item.get('alternateLink', 'http://bit.ly/ScQadK')
             })
 
         return result
+
+    def search(self, query):
+        request = requests.get(ELASTIC_SEARCH + '/all_documents/_search',
+                               params={'q': 'title:' + query},
+                               auth=self._get_auth(ELASTIC_SEARCH))
+        response = request.json()
+        return self._beautify_response(response)
+
+    def search_content(self, query):
+        request = requests.get(ELASTIC_SEARCH + '/all_documents/_search',
+                               params={'q': 'content:' + query},
+                               auth=self._get_auth(ELASTIC_SEARCH))
+        response = request.json()
+        return self._beautify_response(response)
 
     def get(self):
         query = urllib.unquote(self.get_argument('query', default=''))
         self.write(template_loader.load('search_results.jade')
             .generate(query=query,
                       items=self.search(query),
-                      fields=['title', 'account', 'thumbnail']))
+                      items_cont=self.search_content(query),
+                      fields=['title', 'account', 'link', 'id']))
 
 
 class AddHandler(tornado.web.RequestHandler):

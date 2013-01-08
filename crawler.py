@@ -1,11 +1,12 @@
 #! /usr/env python
 from optparse import OptionParser
+from urlparse import urlparse
 import requests
 import urllib
 import json
 import os
 
-ELASTIC_SEARCH = 'http://' + str(os.getenv('BONSAI_URL', 'localhost:9200'))
+ELASTIC_SEARCH = str(os.getenv('BONSAI_URL', 'http://localhost:9200'))
 
 parser = OptionParser()
 parser.add_option('-u', '--username', dest='username',
@@ -41,7 +42,7 @@ while True:
 
         for item in response['items']:
             index_item = {}
-            important_fields = ['title', 'thumbnailLink', 'mimeType',
+            important_fields = ['title', 'alternateLink', 'mimeType',
                                 'ownerNames', 'id', 'createdDate',
                                 'modifiedDate']
 
@@ -49,14 +50,26 @@ while True:
                 if field in item:
                     index_item[field] = item[field]
 
-            index_item['_account'] = username
+            index_item['account'] = username
+
+            try:
+                contents_link = item['exportLinks']['text/plain']
+                index_item['content'] = requests.get(contents_link).text
+            except KeyError:
+                print 'no plain text contents'
+            except Exception:
+                print 'other exception while looking for plain text contents'
 
             jsoned_data = json.dumps(index_item)
 
             put_url = ELASTIC_SEARCH + '/all_documents' + \
                 '/gdrive_item/' + urllib.quote(item['id'])
-            index_request = requests.put(put_url, data=jsoned_data, timeout=10)
-            print index_request
+            parsed_url = urlparse(ELASTIC_SEARCH)
+
+            index_request = requests.put(put_url, data=jsoned_data, timeout=10,
+                                         auth=(parsed_url.username,
+                                               parsed_url.password))
+            print 'index', item['id'], index_request
 
     except Exception as e:
         import traceback
